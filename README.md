@@ -34,6 +34,6 @@
 - Проставление лайков
 - Просмотр ленты (твитов)
 
-## <a id="999"></a> Список используемых источников
+## <a id="999"></a> Используемые источники
 [^1]: [Twitter Announces Second Quarter 2022 Results](https://s22.q4cdn.com/826641620/files/doc_financials/2022/q2/Final_Q2'22_Earnings_Release.pdf)
 [^2]: [Leading countries based on number of Twitter users as of January 2022](https://www.statista.com/statistics/242606/number-of-active-twitter-users-in-selected-countries)
