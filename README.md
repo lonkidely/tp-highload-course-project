@@ -19,6 +19,11 @@
     - [2.2.4 RPS](#16)
     - [RPS по типам запросов](#17)
 - [3. Логическая схема базы данных](#18)
+- [4. Физическая схема базы данных](#19)
+  - [4.1 Хранение сессий](#20)
+  - [4.2 Хранение вложений](#21)
+  - [4.3 Хранение постов, лайков, пользователей](#22)
+  - [4.4 Индексы](#23)
 - [999. Используемые источники](#999)
 
 
@@ -123,9 +128,29 @@
 * Вложение - информация о вложении. Основной ключ - AttachmentID. Содержит в себе название, ссылку на файл в файловом хранилище, дату создания и хеш содержимого для исключения дублей
 * Сессия - информация о сессии пользователя. Основной ключ - SessionID. Содержит в себе ID-шник пользователя (1:1) и уникальный сессионный токен
 
+## <a id="19"></a> 4. Физическая схема базы данных
+
+![Физическая схема БД](./attachments/physical_diagram/physical_diagram.png)
+
+### <a id="20"></a> 4.1 Хранение сессий
+Для хранения сессий будем использовать in-memory хранилище Redis. Помимо высокой производительности, Redis умеет в репликацию из коробки.
+
+### <a id="21"></a> 4.2 Хранение вложений
+Для хранения вложений будем использовать облачное хранилище Amazon S3. В PostgreSQL будем держать только ссылку на вложение.
+
+### <a id="22"></a> 4.3 Хранение постов, лайков, пользователей
+Для всего остального будем использовать PostgreSQL. Для повышения надежности и производительности воспользуемся шардированием.  
+Для постов можно применить Range Partitioning, встроенный в PostgreSQL [^6], чтобы быстрее получать доступ к недавним постам. Для этого выделим отдельные высокопроизводительные сервера, на которых будут храниться посты за последнюю неделю, остальные посты распределяются равномерно по оставшимся, менее производительным сервакам.
+
+### <a id="23"></a> 4.4 Индексы
+- Nickname - для быстрого поиска пользователя по никнейму
+- AttachmentID - для быстрого поиска вложения
+- Author - для быстрого поиска поста по автору
+
 ## <a id="999"></a> Используемые источники
 [^1]: [Twitter Announces Second Quarter 2022 Results](https://s22.q4cdn.com/826641620/files/doc_financials/2022/q2/Final_Q2'22_Earnings_Release.pdf)
 [^2]: [Leading countries based on number of Twitter users as of January 2022](https://www.statista.com/statistics/242606/number-of-active-twitter-users-in-selected-countries)
 [^3]: [Number of Twitter users worldwide from 2019 to 2024](https://www.statista.com/statistics/303681/twitter-users-worldwide/)
 [^4]: [Handling the Cheapest Fuel- Data](https://www.loginradius.com/blog/engineering/handling-cheapest-fuel-data/)
 [^5]: [How Many Tweets per Day 2022 (New Data)](https://www.businessdit.com/number-of-tweets-per-day/)
+[^6]: [PostgreSQL: Documentation: 15: 5.11. Table Partitioning](https://www.postgresql.org/docs/current/ddl-partitioning.html#DDL-PARTITIONING-OVERVIEW)
